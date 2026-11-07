@@ -1,0 +1,7 @@
+{
+  "appId": "com.bnh.posinventory",
+  "appName": "BNH POS",
+  "webDir": "www",
+  "backgroundColor": "#fff8e6",
+  "android": { "allowMixedContent": false }
+}
