@@ -1,0 +1,48 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Bundle PDF libraries locally (works offline)
+        run: |
+          cp node_modules/jspdf/dist/jspdf.umd.min.js www/
+          cp node_modules/html2canvas/dist/html2canvas.min.js www/
+
+      - name: Add Android platform
+        run: npx cap add android
+
+      - name: Generate app icons and splash
+        run: npx capacitor-assets generate --android
+
+      - name: Sync web assets
+        run: npx cap sync android
+
+      - name: Build debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: BNH-POS-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
